@@ -143,12 +143,20 @@ export const updateUser = async (user: User) => {
   if (!user.id) throw new Error('User ID is required for updates');
 
   const userRef = doc(db, 'users', user.id);
-  await updateDoc(userRef, {
-    name: user.name,
-    email: user.email,
-    npm: user.npm,
-    favorites: user.favorites
-  });
+  
+  // Create an update object with only defined fields
+  const updateData: Partial<User> = {};
+  
+  if (user.name !== undefined) updateData.name = user.name;
+  if (user.email !== undefined) updateData.email = user.email;
+  if (user.npm !== undefined) updateData.npm = user.npm;
+  if (user.favorites !== undefined) updateData.favorites = user.favorites;
+
+  // Only proceed with update if there are fields to update
+  if (Object.keys(updateData).length > 0) {
+    await updateDoc(userRef, updateData);
+  }
+  
   return user;
 };
 
